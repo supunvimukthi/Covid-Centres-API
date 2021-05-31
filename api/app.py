@@ -176,7 +176,7 @@ class GetBeds(Resource):
         all_data = covid_centre_beds.find({'username': self['username']}, {'_id': 0})
         return jsonify({"results": [sample for sample in all_data]})
 
-    def post(self, id):
+    def post(self):
         print(id)
         """ Fetch available beds for a given covid centre with all the past data """
         json_data = request.json
