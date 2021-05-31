@@ -133,13 +133,13 @@ class SetBeds(Resource):
             covid_centre_beds = mongo.db["CovidCentre_Beds"]
             covid_centres = mongo.db["CovidCentres"]
             covid_centre_beds.insert_one({
-                'username': self['username'],
+                'username': json_data['username'],
                 'beds': json_data['beds'],
                 'time': json_data['time'],
                 'desc': json_data['desc']
             })
             covid_centres.update(
-                {'username': self['username']},
+                {'username': json_data['username']},
                 {'$set':
                     {
                         'beds': json_data['beds'],
@@ -151,7 +151,7 @@ class SetBeds(Resource):
             return jsonify({
                 "results": 'successfully updates the bed count({}) for the centre {}'.format(
                     str(json_data['beds']),
-                    self['username']
+                    json_data['username']
                 )})
         except Exception as e:
             return make_response('error', 400, {"error": str(e)})
@@ -176,6 +176,14 @@ class GetBeds(Resource):
         all_data = covid_centre_beds.find({'username': self['username']}, {'_id': 0})
         return jsonify({"results": [sample for sample in all_data]})
 
+    def post(self, id):
+        print(id)
+        """ Fetch available beds for a given covid centre with all the past data """
+        json_data = request.json
+        covid_centre_beds = mongo.db["CovidCentre_Beds"]
+        all_data = covid_centre_beds.find({'username': json_data['username']}, {'_id': 0})
+        return jsonify({"results": [sample for sample in all_data]})
+
 
 @cross_origin(origins=cors_origins)
 @covid.route('/centres')
@@ -186,7 +194,7 @@ class GetCentres(Resource):
         """Fetch all covid centres listed in the db with their latest available bed counts """
         covid_centres = mongo.db["CovidCentres"]
         all_covid_centres = covid_centres.find({}, {'_id': 0})
-        return jsonify({"results": [centre for centre in all_covid_centres]})
+        return jsonify({"results": [centre for centre in all_covid_centres if centre['username'] != 'admin']})
 
 
 @cross_origin(origins=cors_origins)
