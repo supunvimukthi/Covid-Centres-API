@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+  server:
+    container_name: flask-covid
+    build:
+      context: .
+      network: host
+      dockerfile: Dockerfile
+    ports:
+      - 5100:5100
+    depends_on:
+      - mongodb
+    environment:
+      - ENV=Development
+    volumes:
+      - .:/code
+  mongodb:
+    image: mongo
+    container_name: mongodb-covid
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: 4?pT98LJH5
+      MONGO_INITDB_DATABASE: CovidCentres
+      MONGODB_DATA_DIR: /data/db/covid
+      MONDODB_LOG_DIR: /dev/null
+    ports:
+      - 27017:27017
+    volumes:
+      - /data/db/covid:/data/db/covid
+
