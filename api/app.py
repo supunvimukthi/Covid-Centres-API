@@ -90,7 +90,6 @@ def token_required(f):
 
 @api.route('/login')
 class Login(Resource):
-    @cross_origin(origins=cors_origins)
     @covid.doc('user login endpoint', )
     def get(self):
         """ user login endpoint """
