@@ -1,4 +1,4 @@
-### Rest API for the moisture based IOT project
+### Rest API for the web app to check availability of beds in each covid centre in the country
 
 ## Stack
 
