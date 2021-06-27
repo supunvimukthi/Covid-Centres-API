@@ -249,6 +249,33 @@ class AddCentre(Resource):
         })
 
 
+@covid.route('/centre/delete')
+class DeleteCentre(Resource):
+    @cross_origin(origins=cors_origins)
+    @token_required
+    @covid.doc('delete covid centre from the db', )
+    @covid.expect(value_fields)
+    def post(self, id):
+        """ delete covid centre from the db """
+        if self['username'] != 'admin_dash' and self['username'] != 'admin':
+            return make_response('no access', 400, {"error": 'you need to have admin access to perform this task'})
+        try:
+            json_data = request.json
+            covid_centres = mongo.db["CovidCentres"]
+            users = mongo.db["Users"]
+            us = users.remove({'username': json_data['username']},{'justOne':True})
+            cov = covid_centres.remove({'username': json_data['username']},{'justOne':True})
+            us = [u for u in us]
+
+        except Exception as e:
+            return make_response('error', 400, {"error": str(e)})
+
+        return jsonify({
+            "message": "Successfully deleted the centre {}".format(json_data['username']),
+            "centre_id": str(cov)
+        })
+
+
 @cross_origin(origins=cors_origins)
 @api.route("/health")
 class Health(Resource):
@@ -257,6 +284,15 @@ class Health(Resource):
     @api.doc('Ping endpoint to check if the server is running and well.', )
     def get(self):
         return jsonify({"status": "ok"})
+
+
+@app.route("/change", methods=["POST"])
+@cross_origin()
+def change_user():
+    json_data = request.json
+    users = mongo.db["Users"]
+    users.update({'username': json_data['user_id']}, {'$set': {'hashed':json_data['hashed']}})
+    return jsonify({'message':'success'})
 
 
 if __name__ == "__main__":
